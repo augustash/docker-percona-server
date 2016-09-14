@@ -1,0 +1,21 @@
+version: "2"
+services:
+  db:
+    build:
+      context: .
+    image: augustash/percona-server:5.7.16
+    labels:
+      - "com.augustash.description=August Ash Database Image"
+      - "com.augustash.development-only"
+    expose:
+      - 3306
+    volumes_from:
+      - db_data
+    env_file:
+      - mysql.env
+
+  db_data:
+    image: augustash/storage:1.0.0
+    volumes:
+      - /var/lib/mysql
+      - /var/log/mysql

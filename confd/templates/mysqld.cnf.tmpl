@@ -1,0 +1,81 @@
+[mysqld]
+port                            = {{ getenv "MYSQL_PORT" }}
+user                            = ash
+bind-address                    = 0.0.0.0
+sql_mode                        = NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+pid-file                        = /var/run/mysqld/mysqld.pid
+socket                          = /var/run/mysqld/mysqld.sock
+basedir                         = /usr
+datadir                         = /var/lib/mysql
+tmpdir                          = /tmp
+lc-messages-dir                 = /usr/share/mysql
+lc_messages                     = en_US
+character-set-server            = utf8
+collation-server                = utf8_general_ci
+character_set_server            = utf8
+collation_server                = utf8_general_ci
+skip-external-locking
+skip-host-cache
+skip-name-resolve
+
+# Fine Tuning
+bulk_insert_buffer_size         = {{ getenv "MYSQL_BULK_INSERT_BUFFER_SIZE" }}
+concurrent_insert               = {{ getenv "MYSQL_CONCURRENT_INSERT" }}
+connect_timeout                 = {{ getenv "MYSQL_CONNECT_TIMEOUT" }}
+key_buffer_size                 = {{ getenv "MYSQL_KEY_BUFFER_SIZE" }}
+max_allowed_packet              = {{ getenv "MYSQL_MAX_ALLOWED_PACKET" }}
+max_heap_table_size             = {{ getenv "MYSQL_MAX_HEAP_TABLE_SIZE" }}
+myisam_sort_buffer_size         = {{ getenv "MYSQL_MYISAM_SORT_BUFFER_SIZE" }}
+read_buffer_size                = {{ getenv "MYSQL_READ_BUFFER_SIZE" }}
+read_rnd_buffer_size            = {{ getenv "MYSQL_READ_RND_BUFFER_SIZE" }}
+sort_buffer_size                = {{ getenv "MYSQL_SORT_BUFFER_SIZE" }}
+table_open_cache                = {{ getenv "MYSQL_TABLE_OPEN_CACHE" }}
+thread_cache_size               = {{ getenv "MYSQL_THREAD_CACHE_SIZE" }}
+thread_stack                    = {{ getenv "MYSQL_THREAD_STACK" }}
+tmp_table_size                  = {{ getenv "MYSQL_TMP_TABLE_SIZE" }}
+wait_timeout                    = {{ getenv "MYSQL_WAIT_TIMEOUT" }}
+
+# Query Cache
+query_cache_limit               = {{ getenv "MYSQL_QUERY_CACHE_LIMIT" }}
+query_cache_size                = {{ getenv "MYSQL_QUERY_CACHE_SIZE" }}
+
+# Logging and Replication
+log_error                       = /var/log/mysql/error.log
+log_error_verbosity             = 2
+#general_log_file               = /var/log/mysql/mysql.log
+#general_log                    = 1
+#slow_query_log_file            = /var/log/mysql/slow.log
+#long_query_time                = 2
+#log_slow_verbosity             = query_plan
+
+# Binary logging
+#log_bin                        = /var/log/mysql/percona-bin
+#log_bin_index                  = /var/log/mysql/percona-bin.index
+#expire_logs_days               = 10
+#max_binlog_size                = 100M
+
+# InnoDB
+default_storage_engine          = innodb
+innodb_buffer_pool_size         = {{ getenv "MYSQL_INNODB_BUFFER_POOL_SIZE" }}
+innodb_data_file_path           = {{ getenv "MYSQL_INNODB_DATA_FILE_PATH" }}
+innodb_log_buffer_size          = {{ getenv "MYSQL_INNODB_LOG_BUFFER_SIZE" }}
+innodb_log_file_size            = {{ getenv "MYSQL_INNODB_LOG_FILE_SIZE" }}
+innodb_file_per_table           = {{ getenv "MYSQL_INNODB_FILE_PER_TABLE" }}
+innodb_open_files               = {{ getenv "MYSQL_INNODB_OPEN_FILES" }}
+innodb_io_capacity              = {{ getenv "MYSQL_INNODB_IO_CAPACITY" }}
+innodb_thread_concurrency       = {{ getenv "MYSQL_INNODB_THREAD_CONCURRENCY" }}
+innodb_lock_wait_timeout        = {{ getenv "MYSQL_INNODB_LOCK_WAIT_TIMEOUT" }}
+innodb_flush_log_at_trx_commit  = {{ getenv "MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT" }}
+innodb_flush_method             = {{ getenv "MYSQL_INNODB_FLUSH_METHOD" }}
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet              = 32M
+
+[isamchk]
+key_buffer                      = 384M
+key_buffer_size                 = 256M
+sort_buffer_size                = 256M
+read_buffer                     = 2M
+write_buffer                    = 2M

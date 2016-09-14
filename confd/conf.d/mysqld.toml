@@ -1,0 +1,10 @@
+[template]
+# Conifguration template
+src     = "mysqld.cnf.tmpl"
+# Rendered configuration file location
+dest    = "/etc/mysql/percona-server.conf.d/mysqld.cnf"
+
+# File ownership
+owner   = "ash"
+group   = "ash"
+mode    = "0644"
