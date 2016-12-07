@@ -8,34 +8,34 @@
 
 To build the Docker image, clone this repository and from the project directory run:
 
-```
+```bash
 docker-compose build
 ```
 
 Now start a new container from the image, expose the proper ports, and mount a volume for persistence:
 
-```
+```bash
 docker-compose up -d
 ```
 
 You can also start a container outside of Docker Compose:
 
-```
+```bash
 docker run -d -P \
   -v ~/volumes/data:/var/lib/mysql \
   -e MYSQL_ROOT_PASSWORD="root" \
-  augustash/mysql
+  augustash/percona-server
 ```
 
 The first time you run the container, it will check for an existing database. If one isn't found, the default will be created and you must include the `MYSQL_ROOT_PASSWORD` variable.
 
 You can test the connection to your MySQL instance with a throw-away container:
 
-```
+```bash
 docker run -it --rm \
-    --link db:db_host \
-    mysql \
-    /bin/bash -c 'mysql -hdb_host -uroot -p'
+  --link db:db_host \
+  mysql \
+  /bin/bash -c 'mysql -hdb_host -uroot -p'
 ```
 
 ### Set `root` Password
@@ -45,19 +45,19 @@ You must specify a password for the administrative user account unless the conta
 ```bash
 docker run -d -P \
   -e MYSQL_ROOT_PASSWORD="root" \
-  augustash/mysql
+  augustash/percona-server
 ```
 
 ### Create a new user
 
 To use a specific username or password, you can set the environment variables `MYSQL_USER` and `MYSQL_PASS` when creating a container (if `MYSQL_DATABASE` is set, the user created will have permissions to the new database):
 
-```
+```bash
 docker run -d -P \
   -e MYSQL_ROOT_PASSWORD="root" \
   -e MYSQL_USER="admin" \
   -e MYSQL_PASS="1234567890" \
-  augustash/mysql
+  augustash/percona-server
 ```
 
 ### Import Existing Databases
@@ -66,27 +66,27 @@ If you need to migrate an existing MySQL-based database into your container, run
 
 On the existing MySQL server, create a SQL backup of your structure & data:
 
-```
+```bash
 mysqldump -u$MYSQL_USER -p$MYSQL_PASS $MYSQL_NAME \
-    --force --triggers --single-transaction --opt --skip-lock-tables \
-    > /tmp/$MYSQL_NAME.sql
+  --force --triggers --single-transaction --opt --skip-lock-tables \
+  > /tmp/$MYSQL_NAME.sql
 ```
 
 Import your SQL backup into your container:
 
 ```bash
 docker run -it --rm \
-    --link db:db_host \
-    -v /tmp:/data \
-    augustash/mysql \
-    /bin/bash -c 'mysql -hdb_host -uroot -p $MYSQL_NAME < /data/$MYSQL_NAME.sql'
+  --link db:db_host \
+  -v /tmp:/data \
+  augustash/percona-server \
+  /bin/bash -c 'mysql -hdb_host -uroot -p $MYSQL_NAME < /data/$MYSQL_NAME.sql'
 ```
 
 ### Backups
 
 Percona's XtraBackup utility is included, which makes creating backups of your database very easy. To create a hot backup while the server is running:
 
-```
+```bash
 docker exec -it <RUNNING_CONTAINER_NAME> innobackupex --user=<USER> --password=<PASS> /backups
 ```
 
