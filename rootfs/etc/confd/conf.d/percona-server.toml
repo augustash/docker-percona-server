@@ -1,8 +1,8 @@
 [template]
 # Conifguration template
-src     = "mysqld.cnf.tmpl"
+src     = "percona-server.cnf.tmpl"
 # Rendered configuration file location
-dest    = "/etc/mysql/percona-server.conf.d/mysqld.cnf"
+dest    = "/etc/mysql/percona-server.cnf"
 
 # File ownership
 owner   = "ash"

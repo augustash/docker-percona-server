@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# run service
-exec /usr/sbin/mysqld "$MYSQL_OPTS"
