@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/with-contenv bash
 
 DATADIR="$(mysqld --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 
 if [ ! -d "$DATADIR/mysql" ]; then
     # root password is required
-    if [ -z "$MYSQL_ROOT_PASSWORD" ] -a [ -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ] -a [ -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
+    if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
         echo >&2 "Error: database is uninitialized and no root password was set"
         echo >&2 "  You need to specify one of MYSQL_ROOT_PASSWORD, MYSQL_ALLOW_EMPTY_PASSWORD or MYSQL_RANDOM_ROOT_PASSWORD"
         exit 1
@@ -63,7 +63,7 @@ EOSQL
     fi
 
     # add additional user
-    if [ ! -z "$MYSQL_USER" ] -a [ ! -z "$MYSQL_PASSWORD" ]; then
+    if [ ! -z "$MYSQL_USER" -a ! -z "$MYSQL_PASSWORD" ]; then
         echo "-----> creating MySQL user $MYSQL_USER"
         echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | "${MYSQL[@]}"
 

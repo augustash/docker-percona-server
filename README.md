@@ -1,41 +1,66 @@
 ![https://www.augustash.com](http://augustash.s3.amazonaws.com/logos/ash-inline-color-500.png)
 
-# Percona Server Image
+**This container is not currently aimed at public consumption. It exists as an internal tool for August Ash containers.**
 
-**This `mysql` container is not currently aimed at public consumption. It exists as an internal tool for August Ash development and is built upon [Phusion](http://phusion.github.io/baseimage-docker/).**
+## About
 
-## Usage
+Percona Server is a fork of the MySQL relational database management system created by Percona. It aims to retain close compatibility to the official MySQL releases, while focusing on performance and increased visibility into server operations.
 
-To build the Docker image, clone this repository and from the project directory run:
-
-```bash
-docker-compose build
-```
-
-Now start a new container from the image, expose the proper ports, and mount a volume for persistence:
+## TL;DR
 
 ```bash
 docker-compose up -d
 ```
 
-You can also start a container outside of Docker Compose:
+## Usage
+
+Start a new container from the image, expose the proper ports, and mount a volume for persistence:
 
 ```bash
 docker run -d -P \
   -v ~/volumes/data:/var/lib/mysql \
   -e MYSQL_ROOT_PASSWORD="root" \
-  augustash/percona-server
+  augustash/percona-server:5.7
 ```
 
-The first time you run the container, it will check for an existing database. If one isn't found, the default will be created and you must include the `MYSQL_ROOT_PASSWORD` variable.
+The first time you run the container, it will check for an existing database. If one isn't found, a default will be created. You must include the `MYSQL_ROOT_PASSWORD` variable.
 
 You can test the connection to your MySQL instance with a throw-away container:
 
 ```bash
 docker run -it --rm \
-  --link db:db_host \
+  --link <DB CONTAINER>:db_host \
   mysql \
   /bin/bash -c 'mysql -hdb_host -uroot -p'
+```
+
+**Note:** If your database container was started with `docker-compose` and has a network, you'll need to link it differently:
+
+```bash
+docker run -it --rm \
+  --link <DB CONTAINER>:db_host \
+  --net <NETWORK NAME>
+  mysql \
+  /bin/bash -c 'mysql -hdb_host -uroot -p'
+```
+
+You can find available networks by:
+
+```bash
+docker network ls
+```
+
+## Configuration
+
+### Mount Custom Configuration
+
+If you need to change configuration values, the best option is to mount your own custom configuration:
+
+```bash
+docker run -d -P \
+  -v $(pwd)/mysqld.cnf:/config/mysql/conf.d/mysqld.cnf \
+  -e MYSQL_ROOT_PASSWORD="root" \
+  augustash/percona-server:5.7
 ```
 
 ### Set `root` Password
@@ -45,7 +70,7 @@ You must specify a password for the administrative user account unless the conta
 ```bash
 docker run -d -P \
   -e MYSQL_ROOT_PASSWORD="root" \
-  augustash/percona-server
+  augustash/percona-server:5.7
 ```
 
 ### Create a new user
@@ -57,7 +82,7 @@ docker run -d -P \
   -e MYSQL_ROOT_PASSWORD="root" \
   -e MYSQL_USER="admin" \
   -e MYSQL_PASS="1234567890" \
-  augustash/percona-server
+  augustash/percona-server:5.7
 ```
 
 ### Import Existing Databases
@@ -76,10 +101,12 @@ Import your SQL backup into your container:
 
 ```bash
 docker run -it --rm \
-  --link db:db_host \
-  -v /tmp:/data \
-  augustash/percona-server \
-  /bin/bash -c 'mysql -hdb_host -uroot -p $MYSQL_NAME < /data/$MYSQL_NAME.sql'
+  --link <DB CONTAINER>:db_host \
+  --net <NETWORK NAME>
+  -v /tmp:/backups \
+  --entrypoint /usr/bin/mysql
+  augustash/percona-server:5.7 \
+  '-hdb_host -uroot -p $MYSQL_NAME < /backups/$MYSQL_NAME.sql'
 ```
 
 ### Backups
@@ -87,68 +114,34 @@ docker run -it --rm \
 Percona's XtraBackup utility is included, which makes creating backups of your database very easy. To create a hot backup while the server is running:
 
 ```bash
-docker exec -it <RUNNING_CONTAINER_NAME> innobackupex --user=<USER> --password=<PASS> /backups
+docker exec -it <DB CONTAINERE> /usr/bin/innobackupex --user=<USER> --password=<PASS> /backups
 ```
 
 For additional XtraBackup options:
 
 ```bash
-docker exec -it <RUNNING_CONTAINER_NAME> innobackupex --help
+docker exec -it <DB CONTAINERE> /usr/bin/innobackupex --help
 ```
-
 
 ```bash
-docker run --rm --volumes-from <DATA_CONTAINER> -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /backups/*
+docker run --rm --volumes-from <DATA CONTAINER> -v $(pwd):/data ubuntu /bin/bash -c 'tar cvf /data/backup.tar /backups/*'
 ```
 
-## Volumes
+### User/Group Identifiers
 
-Three mount points for connecting data volumes from the host or other containers are available.
+To help avoid nasty permissions errors, the container allows you to specify your own `PUID` and `PGID`. This can be a user you've created or even root (not recommended).
 
-* `/backups` - XtraBackup archives
-* `/var/lib/mysql` - MySQL data files
-* `/var/log/mysql` - MySQL log files
+### Environment Variables
 
-## Exposed Ports
+The following variables can be set and will change how the container behaves. You can use the `-e` flag, an environment file, or your Docker Compose file to set your preferred values. The default values are shown:
 
-* Port `3306`
-
-## Available Environment Variables
-
-* `SKIP_UPDATE`
-* `MYSQL_PORT`
-* `MYSQL_ROOT_PASSWORD`
-* `MYSQL_DATABASE`
-* `MYSQL_USER`
-* `MYSQL_PASSWORD`
-* `MYSQL_OPTS`
-* `MYSQL_RANDOM_ROOT_PASSWORD`
-* `MYSQL_ALLOW_EMPTY_PASSWORD`
-* `MYSQL_ONETIME_PASSWORD`
-* `MYSQL_BULK_INSERT_BUFFER_SIZE`
-* `MYSQL_CONCURRENT_INSERT`
-* `MYSQL_CONNECT_TIMEOUT`
-* `MYSQL_KEY_BUFFER_SIZE`
-* `MYSQL_MAX_ALLOWED_PACKET`
-* `MYSQL_MAX_HEAP_TABLE_SIZE`
-* `MYSQL_MYISAM_SORT_BUFFER_SIZE`
-* `MYSQL_READ_BUFFER_SIZE`
-* `MYSQL_READ_RND_BUFFER_SIZE`
-* `MYSQL_SORT_BUFFER_SIZE`
-* `MYSQL_TABLE_OPEN_CACHE`
-* `MYSQL_THREAD_CACHE_SIZE`
-* `MYSQL_THREAD_STACK`
-* `MYSQL_TMP_TABLE_SIZE`
-* `MYSQL_WAIT_TIMEOUT`
-* `MYSQL_QUERY_CACHE_LIMIT`
-* `MYSQL_QUERY_CACHE_SIZE`
-* `MYSQL_INNODB_BUFFER_POOL_SIZE`
-* `MYSQL_INNODB_LOG_BUFFER_SIZE`
-* `MYSQL_INNODB_LOG_FILE_SIZE`
-* `MYSQL_INNODB_FILE_PER_TABLE`
-* `MYSQL_INNODB_OPEN_FILES`
-* `MYSQL_INNODB_IO_CAPACITY`
-* `MYSQL_INNODB_THREAD_CONCURRENCY`
-* `MYSQL_INNODB_LOCK_WAIT_TIMEOUT`
-* `MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT`
-* `MYSQL_INNODB_FLUSH_METHOD`
+- `PUID`=501
+- `PGID`=20
+- `MYSQL_ROOT_PASSWORD`
+- `MYSQL_ALLOW_EMPTY_PASSWORD`
+- `MYSQL_RANDOM_ROOT_PASSWORD`
+- `MYSQL_ONETIME_PASSWORD`
+- `MYSQL_DATABASE`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_OPTS`
