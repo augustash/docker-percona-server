@@ -13,6 +13,8 @@ services:
       - db_data
     volumes_from:
       - db_data
+    # volumes:
+    #   - ./rootfs/defaults/sample.cnf:/config/mysql/conf.d/mysqld.cnf
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=app
