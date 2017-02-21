@@ -3,7 +3,7 @@ services:
   db:
     build:
       context: .
-    image: augustash/mysql:5.7
+    image: augustash/percona-server:5.7
     labels:
       - "com.augustash.description=August Ash Database Image"
       - "com.augustash.development-only"
