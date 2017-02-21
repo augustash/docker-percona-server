@@ -63,7 +63,7 @@ EOSQL
     fi
 
     # add additional user
-    if [ ! -z "$MYSQL_USER" -a ! -z "$MYSQL_PASSWORD" ]; then
+    if [ -z "$MYSQL_USER" -a -z "$MYSQL_PASSWORD" ]; then
         echo "-----> creating MySQL user $MYSQL_USER"
         echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | "${MYSQL[@]}"
 

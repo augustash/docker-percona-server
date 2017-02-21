@@ -3,7 +3,7 @@ MAINTAINER Pete McWilliams <pmcwilliams@augustash.com>
 
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG PERCONA_MAJOR="5.7"
-ARG PERCONA_VERSION="5.7.16-10-1.xenial"
+ARG PERCONA_VERSION="5.7.17-11-1.xenial"
 
 # environment
 ENV MYSQL_ROOT_PASSWORD root
