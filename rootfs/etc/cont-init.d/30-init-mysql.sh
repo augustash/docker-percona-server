@@ -57,17 +57,18 @@ EOSQL
 
     # setup named database
     if [ ! -z "$MYSQL_DATABASE" ]; then
-        echo "-----> creating database $MYSQL_DATABASE"
+        echo "-----> creating database '$MYSQL_DATABASE'"
         echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;" | "${MYSQL[@]}"
         MYSQL+=( "$MYSQL_DATABASE" )
     fi
 
     # add additional user
-    if [ -z "$MYSQL_USER" -a -z "$MYSQL_PASSWORD" ]; then
-        echo "-----> creating MySQL user $MYSQL_USER"
+    if [ ! -z "$MYSQL_USER" -a ! -z "$MYSQL_PASSWORD" ]; then
+        echo "-----> creating MySQL user '$MYSQL_USER'"
         echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';" | "${MYSQL[@]}"
 
         if [ ! -z "$MYSQL_DATABASE" ]; then
+            echo "-----> granting '$MYSQL_USER' privileges on '$MYSQL_DATABASE'"
             echo "GRANT ALL ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';" | "${MYSQL[@]}"
         fi
 
